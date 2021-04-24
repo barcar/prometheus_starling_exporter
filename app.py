@@ -26,7 +26,7 @@ UPDATE_FREQUENCY = os.getenv("UPDATE_FREQUENCY",1800)
 def generate_metric_data(key,value):
     unit = value["currency"]
 
-    tmp = Gauge(f"account_{key}_balance",f"{key} Balance in {unit}")
+    tmp = Gauge(f"starling_account_{key}_balance",f"{key} Balance in {unit}")
     tmp.set(float(value["minorUnits"])/100)
     return tmp
 
