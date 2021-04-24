@@ -36,10 +36,10 @@ CURRENCY_CODE = os.getenv("CURRENCY_CODE", "gbp")
 
 def generateMetricData(key,value):
     template = f"""
-    # HELP account_{key}_balance {key}-Account Balance in GBP.
-    # TYPE account_{key}_balance gauge
-    # UNIT account_{key}_balance {value["currency"]}
-    account_{key}_balance {float(value["minorUnits"])/100}"""
+# HELP account_{key}_balance {key}-Account Balance in GBP.
+# TYPE account_{key}_balance gauge
+# UNIT account_{key}_balance {value["currency"]}
+account_{key}_balance {float(value["minorUnits"])/100}"""
     return template
 
 @app.route('/metrics')
