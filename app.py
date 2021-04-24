@@ -1,25 +1,13 @@
-from flask import Flask
-from flask_caching import Cache
-
+from prometheus_client import start_http_server, Summary, Gauge
 import requests
 import os
 import sys
 
 import logging
 
+import time
+
 logger = logging.getLogger(__name__)
-
-
-config = {
-    "DEBUG": True,          # some Flask specific configs
-    "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
-    "CACHE_DEFAULT_TIMEOUT": 1800
-}
-
-app = Flask(__name__)
-
-app.config.from_mapping(config)
-cache = Cache(app)
 
 
 ACCOUNT_UUID = os.getenv("ACCOUNT_UUID", None)
@@ -32,18 +20,18 @@ if PERSONAL_ACCESS_TOKEN == None:
     logger.error("PERSONAL_ACCESS_TOKEN must be set to continue")
     sys.exit(2)
 
-CURRENCY_CODE = os.getenv("CURRENCY_CODE", "gbp")
+HTTP_PORT = os.getenv("HTTP_PORT", 9822)
+UPDATE_FREQUENCY = os.getenv("UPDATE_FREQUENCY",1800)
 
-def generateMetricData(key,value):
-    template = f"""
-# HELP account_{key}_balance {key}-Account Balance in GBP.
-# TYPE account_{key}_balance gauge
-# UNIT account_{key}_balance {value["currency"]}
-account_{key}_balance {float(value["minorUnits"])/100}"""
-    return template
+def generate_metric_data(key,value):
+    unit = value["currency"]
 
-@app.route('/metrics')
-@cache.cached(timeout=int(config['CACHE_DEFAULT_TIMEOUT'])-1 )
+    tmp = Gauge(f"account_{key}_balance",f"{key} Balance in {unit}")
+    tmp.set(float(value["minorUnits"])/100)
+    return tmp
+
+
+
 def metrics():
 
     headers = {
@@ -60,7 +48,14 @@ def metrics():
     metric_data = []
 
     for dataset in data.keys():
-        metric_data.append(generateMetricData(dataset,data[dataset]))
+        metric_data.append(generate_metric_data(dataset,data[dataset]))
     
-    return "".join(metric_data)
+    return metric_data
 
+if __name__ == "__main__":
+    start_http_server(int(HTTP_PORT))
+    gauges = []
+
+    while True:
+        gauges = metrics()
+        time.sleep(int(UPDATE_FREQUENCY))
