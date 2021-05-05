@@ -23,14 +23,11 @@ if PERSONAL_ACCESS_TOKEN == None:
 HTTP_PORT = os.getenv("HTTP_PORT", 9822)
 UPDATE_FREQUENCY = os.getenv("UPDATE_FREQUENCY",1800)
 
-def generate_metric_data(key,value):
-    unit = value["currency"]
-
-    tmp = Gauge(f"starling_account_{key}_balance",f"{key} Balance in {unit}")
-    tmp.set(float(value["minorUnits"])/100)
-    return tmp
-
-
+cleared_balance = Gauge("starling_account_cleared_balance", "Starling Cleared Balance")
+effective_balance = Gauge("starling_account_effective_balance", "Starling Effective Balance")
+pending_transactions = Gauge("starling_account_pending_transactions", "Starling Pending Transactions")
+accepted_overdraft = Gauge("starling_account_accepted_overdraft", "Starling Overdraft")
+amount = Gauge("starling_account_amount", "Starling Account Balance")
 
 def metrics():
 
@@ -45,12 +42,21 @@ def metrics():
         return "Error. - See Logs - "
 
     data = r.json()
-    metric_data = []
 
-    for dataset in data.keys():
-        metric_data.append(generate_metric_data(dataset,data[dataset]))
     
-    return metric_data
+    cleared_balance_value = float(data['clearedBalance']['minorUnits'])/100.0
+    effective_balance_value = float(data['effectiveBalance']['minorUnits'])/100.0
+    pending_transactions_value = float(data['pendingTransactions']['minorUnits'])/100.0
+    accepted_overdraft_value = float(data['acceptedOverdraft']['minorUnits'])/100.0
+    amount_value = float(data['amount']['minorUnits'])/100.0
+
+    cleared_balance.set(cleared_balance_value)
+    cleared_balance.set(effective_balance_value)
+    cleared_balance.set(accepted_overdraft_value)
+    cleared_balance.set(pending_transactions_value)
+    cleared_balance.set(amount_value)
+
+    return [cleared_balance]
 
 if __name__ == "__main__":
     start_http_server(int(HTTP_PORT))
