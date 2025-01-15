@@ -4,6 +4,7 @@ You need to have a Starling Developer Account, and have a Personal Access Token 
 
 Generate the Personal Access Token with the following permissions:
 * account:read
+* account-identifier:read
 * account-list:read
 * balance:read
 * savings-goal:read
