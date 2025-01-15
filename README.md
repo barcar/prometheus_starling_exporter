@@ -1,15 +1,16 @@
 You probably shouldn't use this unless you know what you're doing. 
 
-You need to know your Starling Account ID, have a Starling Developer Account, and have a Personal Access Token.
+You need to have a Starling Developer Account, and have a Personal Access Token for each account you wish to export.
 
 Generate the Personal Access Token with the following permissions:
 * account:read
 * account-list:read
 * balance:read
+* savings-goal:read
+* space:read
 
-Run the docker container with the following environment variables
-* ACCOUNT_UUID
-* PERSONAL_ACCESS_TOKEN
+Run the docker container with the following environment variable containing a comma separated list of Personal Access Tokens
+* STARLING_BANK_TOKEN_LIST
 
 Fetch the metrics from 127.0.0.1:9822
 
