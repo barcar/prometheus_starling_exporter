@@ -88,8 +88,8 @@ def metrics():
         # set gauge values
         cleared_balance.labels(AccountNumber=THIS_ACCOUNT_NUMBER, AccountName=THIS_ACCOUNT_NAME).set(cleared_balance_value)
         effective_balance.labels(AccountNumber=THIS_ACCOUNT_NUMBER, AccountName=THIS_ACCOUNT_NAME).set(effective_balance_value)
-        pending_transactions.labels(AccountNumber=THIS_ACCOUNT_NUMBER, AccountName=THIS_ACCOUNT_NAME).set(accepted_overdraft_value)
-        accepted_overdraft.labels(AccountNumber=THIS_ACCOUNT_NUMBER, AccountName=THIS_ACCOUNT_NAME).set(pending_transactions_value)
+        pending_transactions.labels(AccountNumber=THIS_ACCOUNT_NUMBER, AccountName=THIS_ACCOUNT_NAME).set(pending_transactions_value)
+        accepted_overdraft.labels(AccountNumber=THIS_ACCOUNT_NUMBER, AccountName=THIS_ACCOUNT_NAME).set(accepted_overdraft_value)
         amount.labels(AccountNumber=THIS_ACCOUNT_NUMBER, AccountName=THIS_ACCOUNT_NAME).set(amount_value)
 
         # append gauges to metrics array
@@ -100,7 +100,7 @@ def metrics():
         metrics.append(amount)
 
         # get account spaces
-        r = requests.get(f"https://api.starlingbank.com/api/v2/account/{THIS_ACCOUNT_UID}/spaces", headers=headers)
+        r = requests.get(f"https://api.starlingbank.com/api/v2/accounts/{THIS_ACCOUNT_UID}/spaces", headers=headers)
         if r.status_code != 200:
             logger.error(f"API did not return OK {r.text}")
             return "Error. - See Logs - "
@@ -119,7 +119,7 @@ def metrics():
             metrics.append(account_space_balance)
             
     # return the metrics array
-    return [metrics]
+    return metrics
 
 ###############################################################################
 if __name__ == "__main__":
